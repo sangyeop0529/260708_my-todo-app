@@ -5,3 +5,17 @@ export interface Todo {
 }
 
 export type FilterType = "all" | "done" | "active";
+
+export type TodoAction =
+  | {
+      type: "ADD";
+      payload: string;
+    }
+  | {
+      type: "TOGGLE";
+      payload: number;
+    }
+  | {
+      type: "DELETE";
+      payload: number;
+    };

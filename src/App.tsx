@@ -1,9 +1,13 @@
-import React, { useState } from "react";
-import type { Todo } from "./types";
+import React, { useEffect, useState } from "react";
+import type { FilterType, Todo } from "./types";
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    const saved = localStorage.getItem("todos");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [input, setInput] = useState<string>("");
+  const [filter, setFilter] = useState<FilterType>("all");
 
   const addTodo = () => {
     if (input.trim() === "") return;
@@ -34,6 +38,16 @@ function App() {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === "all") return true;
+    if (filter === "done") return todo.done;
+    return !todo.done;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow">
       <div className="flex gap-2 mb-4">
@@ -50,8 +64,40 @@ function App() {
           추가
         </button>
       </div>
+      <div className="flex gap-2 mb-4">
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "all"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-100 text-gray-600"
+          }`}
+          onClick={() => setFilter("all")}
+        >
+          전체
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "done"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-100 text-gray-600"
+          }`}
+          onClick={() => setFilter("done")}
+        >
+          완료
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "active"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-100 text-gray-600"
+          }`}
+          onClick={() => setFilter("active")}
+        >
+          미완료
+        </button>
+      </div>
       <ul className="space-y-2">
-        {todos.map((todo) => (
+        {filteredTodos.map((todo) => (
           <li
             className="flex items-center gap-2 p-2 border-b border-gray-200"
             key={todo.id}
